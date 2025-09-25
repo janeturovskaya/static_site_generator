@@ -1,5 +1,6 @@
 import unittest
-from textnode import TextType, TextNode
+from textnode import TextType, TextNode, text_node_to_html_node
+from htmlnode import LeafNode
 
 class TestTextNode(unittest.TestCase):
 	def test_eq(self):
@@ -18,6 +19,37 @@ class TestTextNode(unittest.TestCase):
 	def test_repr(self):
 		node1 = TextNode("this is a link", TextType.LINK, "boot.com")
 		self.assertEqual(repr(node1),"TextNode(this is a link, link, boot.com)")
+
+class TestTextNodeToHTML(unittest.TestCase):
+	def test_text(self):
+		text_node = TextNode('This is a text node', TextType.TEXT)
+		html_node = text_node_to_html_node(text_node)
+		self.assertEqual(
+			'This is a text node', html_node.value
+		)
+		self.assertEqual(None, html_node.tag)
+
+	def test_link(self):
+		link_node = TextNode('This is a link node', TextType.LINK, "https://www.google.com")
+		html_node = text_node_to_html_node(link_node)
+		self.assertEqual(
+			'This is a link node', html_node.value
+		)
+		self.assertEqual(
+			'a', html_node.tag
+		)
+		self.assertEqual(
+			{
+			    "href": "https://www.google.com"
+		    }, html_node.props
+		)
+
+	def test_leaf(self):
+		bold_text_node = TextNode('This is bold text node', TextType.BOLD)
+		html_node = text_node_to_html_node(bold_text_node)
+		self.assertIsInstance(html_node, LeafNode)
+		self.assertEqual(html_node.tag, 'b')
+		self.assertEqual(html_node.value, 'This is bold text node')
 
 
 
